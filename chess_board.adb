@@ -171,12 +171,12 @@ package body Chess_Board is
 						Piece := Board(CurCase);
 					
 						-- Case rouge si échec
-						-- if Piece.Family = King then
-						-- 	if Is_Check(Board, Piece.Team) then
-						-- 		Put(ESC & "[41m" & Symbol(Piece) & ESC & "[0m");
-						-- 		Skip := True;
-						-- 	end if;
-						-- end if;
+						if Piece.Family = King then
+							if Is_Check(Board, Piece.Team) then
+								Put(ESC & "[41m" & Symbol(Piece) & ESC & "[0m");
+								Skip := True;
+							end if;
+						end if;
 
 						if not Skip then
 							-- Case en surbrillance
