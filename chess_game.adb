@@ -10,6 +10,9 @@ use Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
 
+with Menu;
+use Menu;
+
 package body Chess_Game is
 
 	-- Renvoie le plateau de jeu
@@ -37,6 +40,108 @@ package body Chess_Game is
 		Init_Board(Board);
 		Game := (Board, White, Playing);
 	end Init_Game;
+
+	-- Charger une partie
+	function Load_Game(Game : out T_Game) return Boolean is
+		Board : T_Chessboard;
+
+		function FEN_Char_To_Piece(X : in Character) return T_Piece is
+		begin
+			case X is
+				when 'p' => return (Pawn, Black);
+				when 'r' => return (Rook, Black);
+				when 'n' => return (Knight, Black);
+				when 'b' => return (Bishop, Black);
+				when 'q' => return (Queen, Black);
+				when 'k' => return (King, Black);
+
+				when 'P' => return (Pawn, White);
+				when 'R' => return (Rook, White);
+				when 'N' => return (Knight, White);
+				when 'B' => return (Bishop, White);
+				when 'Q' => return (Queen, White);
+				when 'K' => return (King, White);
+
+				when others => return Empty_Piece;
+			end case;
+		end FEN_Char_To_Piece;
+	begin
+		Board := (others => Empty_Piece);
+
+		Display_Header;
+
+		New_Line;
+		Put_Line(ESC & "[3;36mPour charger une partie différente de la disposition de base, entrez la notation FEN de la position souhaitée" & ESC & "[0m");
+		Put(ESC & "[31m>> " & ESC & "[0m");
+		declare
+			-- https://www.chess.com/terms/fen-chess
+			FEN : String := Get_Line;
+			C : Character;
+			N,Pos : Natural;
+
+			KingBlack : Boolean := False;
+			KingWhite : Boolean := False;
+			
+			Line : Natural := 0;
+			Col : Natural := 0;
+
+			Piece : T_Piece;
+		begin
+			-- On gère le premier field: la disposition de l'échéquier
+			for I in FEN'Range loop
+				C := FEN(I);
+				Piece := FEN_Char_To_Piece(C);
+				
+				if Piece /= Empty_Piece then
+					if Piece.Family = King and Piece.Team = White then
+						if KingWhite then
+							Put_Line(ESC & "[41mDisposition invalide: Il doit y avoir exactement un roi dans chaque camps !" & ESC & "[0m");
+							return False;
+						else
+							KingWhite := True;
+						end if;
+					elsif Piece.Family = King and Piece.Team = Black then
+						if KingBlack then
+							Put_Line(ESC & "[41mDisposition invalide: Il doit y avoir exactement un roi dans chaque camps !" & ESC & "[0m");
+							return False;
+						else
+							KingBlack := True;
+						end if;
+					end if;
+
+					Board(Line*8 + Col) := Piece;
+					Col := Col + 1;
+				elsif C = '/' then
+					Line := Line + 1;
+					Col := 0;
+				elsif C >= '0' and C <= '9' then
+					N := Character'Pos(C) - Character'Pos('0');
+					Col := Col + N;
+				elsif C = ' ' then
+					Pos := I+1;
+					exit;
+				end if;
+			end loop;
+
+			if not KingWhite or not KingBlack then
+				Put_Line(ESC & "[41mDisposition invalide: Il doit y avoir exactement un roi dans chaque camps !" & ESC & "[0m");
+				return False;
+			end if;
+
+			-- À qui de jouer ?
+			if FEN(Pos) = 'b' then
+				Game.Turn := Black;
+			else
+				Game.Turn := White;
+			end if;
+
+			-- 3e champs: les roques disponibles (TODO)
+			Pos := Pos + 2;
+		end;
+
+		Game := (Board, White, Playing);
+		return True;
+	end Load_Game;
 
 	-- Lancer une partie / jouer le prochain tour
 	procedure Next_Turn(Game : in out T_Game ; Highlight : in T_Cases := (others => 0)) is
@@ -105,9 +210,13 @@ package body Chess_Game is
 		end case;
 
 
-		MoveInputUnbounded := Ask_For_Input(Game);
+		New_Line;
+		Put_Line("C'est au tour des: " & Translate_Team(Game.Turn));
+		Put_Line(ESC & "[3;36mPour jouer un coup, entrez '<from>=<to>'. Exemple: e2=e4" & ESC & "[0m");
+		Put_Line(ESC & "[3;36mPour voir les coups légaux d'une pièce, entrez '?<from>'. Exemple: ?b1" & ESC & "[0m");
+		Put(ESC & "[31m>> " & ESC & "[0m");
 		declare
-			MoveInput : String := To_String(MoveInputUnbounded);
+			MoveInput : String := Get_Line;
 			From,Dest : Natural;
 			NewHighlight : T_Cases := (others => 0);
 			Moves : T_Cases;
@@ -158,18 +267,4 @@ package body Chess_Game is
 			end if;
 		end;
 	end Next_Turn;
-
-	function Ask_For_Input(Game : in T_Game) return Unbounded_String is
-		Input_Line : String(1..10);
-		Last : Natural;
-	begin
-		New_Line;
-		Put_Line("C'est au tour des: " & Translate_Team(Game.Turn));
-		Put_Line(ESC & "[3;36mPour jouer un coup, entrez '<from>=<to>'. Exemple: e2=e4" & ESC & "[0m");
-		Put_Line(ESC & "[3;36mPour voir les coups légaux d'une pièce, entrez '?<from>'. Exemple: ?b1" & ESC & "[0m");
-		Put(ESC & "[31m>> " & ESC & "[0m");
-
-		return To_Unbounded_String(Get_Line);
-	end Ask_For_Input;
-
 end Chess_Game;

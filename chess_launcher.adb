@@ -6,6 +6,8 @@ with Menu;
 with Chess_Game;
 use Chess_Game;
 
+with Chess_Board;
+
 procedure Chess_Launcher is
 	Game : T_Game;
 begin
@@ -18,7 +20,9 @@ begin
 			Next_Turn(Game);
 		when Menu.Load_Game =>
 			Put_Line("Load game !");
-			-- Load_Game;
+			if Load_Game(Game) then
+				Chess_Board.Display_Board(Board(Game));
+			end if;
 		when others =>
 			Put_Line("Bye !");
 	end case;

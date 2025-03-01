@@ -18,6 +18,8 @@ package Chess_Game is
 
 	-- Initialiser une partie
 	procedure Init_Game(Game : out T_Game);
+	-- Charger une partie: renvoie vrai ssi la dispoition est valide
+	function Load_Game(Game : out T_Game) return Boolean;
 
 	-- Lancer une partie / jouer le prochain tour
 	procedure Next_Turn(Game : in out T_Game ; Highlight : in T_Cases := (others => 0));
@@ -29,8 +31,5 @@ private
 		Turn : T_Team;
 		Status : T_Status;
 	end record;
-
-	-- Demande au joueur d'écrire une action
-	function Ask_For_Input(Game : in T_Game) return Unbounded_String;
 
 end Chess_Game;

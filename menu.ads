@@ -9,6 +9,9 @@ package Menu is
 												To_Unbounded_String("Fermer le jeu")
 												);
 
+	-- Effacer l'écran et afficher le header
+	procedure Display_Header;
+
 	-- Effacer l'écran et afficher le menu
 	procedure Display_Menu;
 	

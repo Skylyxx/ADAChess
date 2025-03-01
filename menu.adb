@@ -3,12 +3,13 @@ use Ada.Text_IO, Ada.Strings.Unbounded, Ada.Characters.Latin_1;
 
 package body Menu is
 	
-	procedure Display_Menu is
+	-- Effacer l'écran et afficher le header
+	procedure Display_Header is
 	begin
 		for I in 0..50 loop
 			New_Line;
 		end loop;
-
+		
 		Put_Line(ESC & "[33m         █████╗ ██████╗  █████╗         ");
 		Put_Line("        ██╔══██╗██╔══██╗██╔══██╗        ");
 		Put_Line("        ███████║██║  ██║███████║        ");
@@ -22,6 +23,11 @@ package body Menu is
 		Put_Line("██║     ██╔══██║██╔══╝  ╚════██║╚════██║");
 		Put_Line("╚██████╗██║  ██║███████╗███████║███████║");
 		Put_Line(" ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝" & ESC & "[0m");
+	end Display_Header;
+
+	procedure Display_Menu is
+	begin
+		Display_Header;
 		
 		New_Line;
 		Put_Line("Veuillez choisir une option parmis les suivantes");
