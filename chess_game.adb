@@ -59,25 +59,25 @@ package body Chess_Game is
 		Display_Board(Board => Game.Board, Reversed => Game.Turn = Black, Highlight => Highlight);
 
 		-- Mise à jour du status de la partie
-		if Is_Check(Game.Board, White) then
-			if Legal_Moves_Count(Game.Board, White) = 0 then
-				Game.Status := Checkmate_White;
-			else
-				Game.Status := Check_White;
-			end if;
-		elsif Is_Check(Game.Board, Black) then
-			if Legal_Moves_Count(Game.Board, Black) = 0 then
-				Game.Status := Checkmate_Black;
-			else
-				Game.Status := Check_Black;
-			end if;
-		else
-			if Legal_Moves_Count(Game.Board, Black) = 0 or Legal_Moves_Count(Game.Board, White) = 0 then
-				Game.Status := Draw;
-			else
-				Game.Status := Playing;
-			end if;
-		end if;
+		-- if Is_Check(Game.Board, White) then
+		-- 	if Legal_Moves_Count(Game.Board, White) = 0 then
+		-- 		Game.Status := Checkmate_White;
+		-- 	else
+		-- 		Game.Status := Check_White;
+		-- 	end if;
+		-- elsif Is_Check(Game.Board, Black) then
+		-- 	if Legal_Moves_Count(Game.Board, Black) = 0 then
+		-- 		Game.Status := Checkmate_Black;
+		-- 	else
+		-- 		Game.Status := Check_Black;
+		-- 	end if;
+		-- else
+		-- 	if Legal_Moves_Count(Game.Board, Black) = 0 or Legal_Moves_Count(Game.Board, White) = 0 then
+		-- 		Game.Status := Draw;
+		-- 	else
+		-- 		Game.Status := Playing;
+		-- 	end if;
+		-- end if;
 
 		case Game.Status is
 			when Checkmate_White =>

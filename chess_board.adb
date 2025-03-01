@@ -171,12 +171,12 @@ package body Chess_Board is
 						Piece := Board(CurCase);
 					
 						-- Case rouge si échec
-						if Piece.Family = King then
-							if Is_Check(Board, Piece.Team) then
-								Put(ESC & "[41m" & Symbol(Piece) & ESC & "[0m");
-								Skip := True;
-							end if;
-						end if;
+						-- if Piece.Family = King then
+						-- 	if Is_Check(Board, Piece.Team) then
+						-- 		Put(ESC & "[41m" & Symbol(Piece) & ESC & "[0m");
+						-- 		Skip := True;
+						-- 	end if;
+						-- end if;
 
 						if not Skip then
 							-- Case en surbrillance
@@ -246,6 +246,7 @@ package body Chess_Board is
 
 
 	-- Le move From => Dest est-il legal ?
+	-- Note: Pour le cas de manger, rien à rajouter sauf pour les pions qui ne mangent pas de la même manière que lorsqu'ils se déplacent
 	function Is_Legal_Move(Board : in T_Chessboard ; Turn : in T_Team ; From, Dest : in Natural ; CanEatKing : in Boolean := False) return Boolean is
 		Piece : T_Piece := Board(From);
 		Piece2 : T_Piece := Board(Dest);
@@ -259,15 +260,35 @@ package body Chess_Board is
 			return False;
 		end if;
 
+		-- CanEatKing est toujours False, sauf quand on veux vérifier si une position est un échec
 		if not CanEatKing and Piece2.Family = King then
 			return False;
 		end if;
 
 		case Piece.Family is
 			when Pawn =>
-				-- Un pion ne peut pas changer de colonne
+				-- Un pion ne peut pas changer de colonne que pour manger un autre pion
 				if ColFrom /= ColDest then
-					return False;
+					-- Si ya pas de pièce on mange pas !
+					if Piece2.Family = None then
+						return False;
+					end if;
+
+					-- on ne peux se déplacer que d'une colonne, et une ligne
+					if abs(ColFrom-ColDest) /= 1 or abs(LineFrom-LineDest) /= 1 then
+						return False;
+					end if;
+
+					-- On ne peux pas manger en arrière avec un pion
+					if Piece.Team = White then
+						if LineFrom < LineDest then
+							return False;
+						end if;
+					else
+						if LineFrom > LineDest then
+							return False;
+						end if;
+					end if;
 				end if;
 
 				-- Un pion ne peux pas aller en arrière
