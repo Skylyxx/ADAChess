@@ -7,7 +7,7 @@ Un jeu d'échec dans le terminal, codé en ADA.
 - [x] Affichage du plateau (dans le sens du joueur qui joue)
 - [x] Chaque joueur joue à son tour: `<from>=<destination>`
 	- [x] Déplacement classiques
-	- [ ] Les pièces peuvent manger les pièces des adversaires
+	- [x] Les pièces peuvent manger les pièces des adversaires
 	- [ ] Grand Roque et Petit Roque
 	- [ ] En Passant
 	- [x] Un joueur ne peux pas jouer un coup qui le mettrai en échec
