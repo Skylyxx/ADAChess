@@ -15,4 +15,5 @@ Un jeu d'échec dans le terminal, codé en ADA.
 - [x] Mise en surbrillance des coups légaux pour une pièce: `?<from>`
 - [x] Le roi est mis en surbrillance si il est en échec
 - [x] Détection de victoire et de pat
-- [ ] Possibiliter de charger une partie en cour (notation FEN) 
+- [ ] Possibiliter de charger une partie existante (notation FEN) 
+- [ ] Possibiliter d'exporter la partie en cours (notation FEN) 

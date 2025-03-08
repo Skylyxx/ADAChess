@@ -21,7 +21,7 @@ begin
 		when Menu.Load_Game =>
 			Put_Line("Load game !");
 			if Load_Game(Game) then
-				Chess_Board.Display_Board(Board(Game));
+				Next_Turn(Game);
 			end if;
 		when others =>
 			Put_Line("Bye !");

@@ -20,6 +20,8 @@ package Chess_Game is
 	procedure Init_Game(Game : out T_Game);
 	-- Charger une partie: renvoie vrai ssi la dispoition est valide
 	function Load_Game(Game : out T_Game) return Boolean;
+	-- Obtenir la notation FEN de la partie courrante
+	function Get_Current_Fen(Game : in T_Game) return String;
 
 	-- Lancer une partie / jouer le prochain tour
 	procedure Next_Turn(Game : in out T_Game ; Highlight : in T_Cases := (others => 0));

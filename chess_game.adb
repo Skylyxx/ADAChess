@@ -65,6 +65,8 @@ package body Chess_Game is
 				when others => return Empty_Piece;
 			end case;
 		end FEN_Char_To_Piece;
+
+		TheTurn : T_Team;
 	begin
 		Board := (others => Empty_Piece);
 
@@ -130,18 +132,98 @@ package body Chess_Game is
 
 			-- À qui de jouer ?
 			if FEN(Pos) = 'b' then
-				Game.Turn := Black;
+				TheTurn := Black;
 			else
-				Game.Turn := White;
+				TheTurn := White;
 			end if;
 
 			-- 3e champs: les roques disponibles (TODO)
 			Pos := Pos + 2;
 		end;
 
-		Game := (Board, White, Playing);
+		Game := (Board, TheTurn, Playing);
 		return True;
 	end Load_Game;
+
+	-- Obtenir la notation FEN de la partie courrante
+	function Get_Current_Fen(Game : in T_Game) return String is
+		function Piece_To_Fen(Piece : in T_Piece) return Character is
+		begin
+			if Piece.Team = Black then
+				case Piece.Family is
+					when Pawn => return 'p';
+					when Rook => return 'r';
+					when Knight => return 'n';
+					when Bishop => return 'b';
+					when Queen => return 'q';
+					when King => return 'k';
+
+					when others => return 'x';
+				end case;
+			else
+				case Piece.Family is
+					when Pawn => return 'P';
+					when Rook => return 'R';
+					when Knight => return 'N';
+					when Bishop => return 'B';
+					when Queen => return 'Q';
+					when King => return 'K';
+
+					when others => return 'x';
+				end case;
+			end if;
+		end Piece_To_Fen;
+
+		Pos : Positive := 1;
+		Res : String(1..100) := (others => ' ');
+
+		EmptyLine : Boolean;
+		Counter : Natural;
+		Piece : T_Piece;
+		Char : Character;
+	begin
+		for Line in 0..7 loop
+			EmptyLine := True;
+			Counter := 0;
+
+			for Col in 0..7 loop
+				Piece := Game.Board(Line*8 + Col);
+				Char := Piece_To_Fen(Piece);
+				
+				if Char = 'x' then
+					Counter := Counter + 1;
+				elsif Counter > 0 then
+					EmptyLine := False;
+					Res(Pos) := Character'Val(Character'Pos('0') + Counter);
+					Res(Pos+1) := Char;
+					Pos := Pos + 2;
+					Counter := 0;
+				else
+					EmptyLine := False;
+					Res(Pos) := Char;
+					Pos := Pos + 1;
+				end if;
+			end loop;
+
+			if EmptyLine then
+				Res(Pos) := '8';
+				Pos := Pos + 1;
+			elsif Counter > 0 then
+				Res(Pos) := Character'Val(Character'Pos('0') + Counter);
+				Pos := Pos + 1;
+			end if;
+
+			if Line < 7 then
+				Res(Pos) := '/';
+				Pos := Pos + 1;
+			end if;
+		end loop;
+		
+		Res(Pos+1) := (if Game.Turn = Black then 'b' else 'w');
+		Pos := Pos + 2;
+
+		return Res;
+	end Get_Current_Fen;
 
 	-- Lancer une partie / jouer le prochain tour
 	procedure Next_Turn(Game : in out T_Game ; Highlight : in T_Cases := (others => 0)) is
@@ -214,6 +296,7 @@ package body Chess_Game is
 		Put_Line("C'est au tour des: " & Translate_Team(Game.Turn));
 		Put_Line(ESC & "[3;36mPour jouer un coup, entrez '<from>=<to>'. Exemple: e2=e4" & ESC & "[0m");
 		Put_Line(ESC & "[3;36mPour voir les coups légaux d'une pièce, entrez '?<from>'. Exemple: ?b1" & ESC & "[0m");
+		Put_Line(ESC & "[3;36mPour sauvegarder la partie, écrire 'export'" & ESC & "[0m");
 		Put(ESC & "[31m>> " & ESC & "[0m");
 		declare
 			MoveInput : String := Get_Line;
@@ -225,8 +308,11 @@ package body Chess_Game is
 			if MoveInput'Length < 3 then
 				Next_Turn(Game); -- on redemande
 			else
+				if MoveInput = "export" then
+					Put_Line(ESC & "[32mNotation FEN de la partie en cours: " & ESC & "[0m" & Get_Current_Fen(Game));
+
 				-- Cas 1: ?e2 (on montre les cases disponibles depuis e2)
-				if MoveInput(MoveInput'First) = '?' then
+				elsif MoveInput(MoveInput'First) = '?' then
 					From := Get_Case_Id(MoveInput(MoveInput'First+1..MoveInput'First+2));
 
 					-- Case valide ?
